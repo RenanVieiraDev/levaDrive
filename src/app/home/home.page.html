@@ -1,14 +1,242 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  <div #map>
+    <ion-searchbar [(ngModel)]="search" (ionChange)="searchChanged()" placeholder="Para onde?" [hidden]="destination"></ion-searchbar>
+    <ion-list [hidden]="!search.length">
+      
+      <ion-item (click)="calcRota(pesquisa)" class="ion-margin-horizontal itemPesquisa" *ngFor="let pesquisa of resultadosDePesquisa">
+        {{pesquisa.description}}
+      </ion-item>
+      <ion-button class="ion-margin-top"  (click)="back()" color="dark" fill="clear" size="small" [hidden]="!destination" *ngIf="pedidoCorridaIniciada === ''">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+
+      <ion-button (click)="openMenuBotoesCorridaAtiva()" class="ion-margin-top" color="dark" fill="clear" size="small" *ngIf="pedidoCorridaIniciada === 'ok'" style="padding-top: 5px;padding-bottom: 5px;">
+        <img src="../../assets/icon/hamburg.gif" style="width: 30px; height: 30px;">
+      </ion-button>
+      <div class="ion-margin-horizontal menuBotoesCorridaAtiva" *ngIf="menuBotoesCorridaAtiva">
+        <ul style="list-style: none;">
+          <li>
+            <ion-button shape="round" size="small" color="danger" *ngIf="pedidoDeCorrida.statusDeCorrida === 'aguardando'" (click)="cancelarCorrida()">Cancelar corrida</ion-button>
+          </li>
+        </ul>
+      </div>
+    </ion-list>
+    
+    <div class="ContainerMenuConf" [hidden]="!corridaViewMenu.valorCorrida" *ngIf="pedidoCorridaIniciada === 'pedidoFase1'" style="text-align: center;">
+      
+      <form [formGroup]="dadosFormPropostaCliente" (submit)="pedirCorrida()">
+          <ul style="list-style: none;margin: 0px;padding: 0px;">
+            <li style="text-align: left;border-bottom: 1px solid rgba(0,0,0,.1);margin: 5px 0px;padding: 5px;">
+              <ion-grid>
+                <ion-row>
+
+                  <ion-col size="2">
+                    <img src="../../assets/icon/dinheiro.png" style="width: 80%;margin-top: 50%;">
+                  </ion-col>
+
+                  <ion-col>
+                    <label>Quanto quer pagar pela corrida?</label><br/>
+                    <input formControlName="valor" class="inputTarifaCorrida" type="number"><br/>
+                    <small>Estipule um valor entre o minimo mediano.</small>
+                  </ion-col>
+
+                </ion-row>
+              </ion-grid>  
+            </li>
+
+            <li style="text-align: left;border-bottom: 1px solid rgba(0,0,0,.1);margin: 5px 0px;padding: 5px;">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="2">
+                  <img src="../../assets/icon/googleMaker.png" style="width: 50%;margin-top: 20%;">
+                </ion-col>
+                <ion-col>
+                  <small>Para:</small><br />
+                  <span class="spanTextos">{{(corridaViewMenu.nomeLocal).substring(0,38)}}...</span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            </li>
+
+            <li style="text-align: left;border-bottom: 1px solid rgba(0,0,0,.1);margin: 5px 0px;padding: 5px;">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="2">
+                  <img src="../../assets/icon/placaKM.png" style="width: 70%;">
+                </ion-col>
+                <ion-col>
+                  <ul style="margin: 0px;padding: 3px;">
+                    <li style="margin: 0px;padding: 0px;"> <span class="spanTextos">Distancia:<b>{{corridaViewMenu.distancia}}</b></span></li>
+                    <li style="margin: 0px;padding: 0px;"><span class="spanTextos">Duração:<b>{{corridaViewMenu.duracao}}</b></span></li>
+                  </ul>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            </li>
+          </ul>
+        <ion-button color="dark" expand="block" type="submit">
+          confirmar Corrida
+        </ion-button>
+      </form> 
+       
+    </div>
+    
+    <div class="navegacaoMotoristaContainer" *ngIf="pedidoCorridaIniciada === 'ok'">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4" style="text-align: center;">
+            <img src="../../assets/usuario.png" style="width: 50%;">
+          </ion-col>
+          <ion-col size="8">
+            <h3 style="margin:0px">{{pedidoDeCorrida.motoristaNome}}</h3>
+            <img (click)="abrirFecharChat()" src="../../assets/icon/chat.png" style="width: 30%;margin: 0px 10%;">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <div class="ion-margin-horizontal aguardeCorrida" *ngIf="pedidoCorridaIniciada === 'aguardando'">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4">
+            <ion-icon name="pin" style="font-size: 55px;color: brown;"></ion-icon>
+          </ion-col>
+          <ion-col size="8">
+            Aguardando resposta do motorista...
+          </ion-col>
+          <ion-col size="12" style="text-align: center;">
+            <img src="../../assets/loadings/Infinity-1s-200px.gif" width="25%">
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <div class="ion-margin-horizontal aguardeCorrida" *ngIf="contraPropostaAtiva">
+      <ion-grid>
+        <ion-row>
+
+          <ion-col size="4">
+            <img class="imgHeadChat online" src="../../assets/usuario.png" class="">
+          </ion-col>
+          <ion-col size="8">
+            <h3>{{pedidoDeCorrida.motoristaNome}}</h3>
+            <ul style="margin: 0px;padding: 0px;list-style: none;">
+              <li style="margin: 0px;padding: 0px;">Para: {{(corridaViewMenu.nomeLocal).substring(0,15)}}...</li>
+              <li style="margin: 0px;padding: 0px;"> Distancia: {{pedidoDeCorrida.distancia}}</li>
+              <li style="margin: 0px;padding: 0px;">Duração: {{pedidoDeCorrida.duracao}}</li>
+              <li style="margin: 0px;padding: 0px;">Valor proposto:R$ {{pedidoDeCorrida.contraPropostaMotorista.valor}}</li>
+            </ul>
+          </ion-col>
+          <ion-col size="12" style="text-align: center;">
+            <ion-button>Aceitar</ion-button> 
+            <ion-button  color="danger">Negar</ion-button>
+            <!--<img src="../../assets/loadings/Infinity-1s-200px.gif" width="25%">-->
+          </ion-col>
+
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <div id="chatId" class="chatFiltro off">
+      <div class="ion-margin-horizontal containerChat">
+          <div class="topChat">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="3">
+                  <img class="imgHeadChat online"  src="../../assets/us.jpg">
+                  <!--<img class="imgHeadChat online" *ngIf="pedidoCorridaIniciada === 'ok'" [src]="pedidoDeCorrida.imgMotorista">-->
+                </ion-col>
+                <ion-col size="7" style="text-align:left;">
+                 <span class="nomemotorista" *ngIf="pedidoCorridaIniciada === 'ok'"><b>{{pedidoDeCorrida.motoristaNome}}</b></span>
+                </ion-col>
+                <ion-col size="2">
+                  <span (click)="abrirFecharChat()" class="btnClose">X</span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+
+          <div class="tela" id="telaId">
+
+              <span class="{{msg.nomeClasse}}" *ngFor="let msg of conversaChat">
+                <small><b>{{msg.deQuem}}</b></small>
+                <p>
+                  {{msg.dadosMsg.msg}}
+                </p>
+              </span>
+
+          </div>
+
+          <div class="formularioEnvio">
+            <form [formGroup]="msgEnvioChat" (submit)="enviarMsgChat()" style="height: 100%;width: 100%;margin: 0px;">
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="10">
+                    <textarea formControlName="msgSend" class="areaTextoSend"></textarea>
+                  </ion-col>
+                  <ion-col size="2" style="text-align: left;">
+                    <button class="btnSend"> <img src="../../assets/icon/Send.png" style="width: 100%;"></button>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </form>
+          </div>
+
+      </div>
+    </div>
+
+    <div class="classificarContainer" *ngIf="classificacaoMotorista">
+      <img class="imgHeadChat online" src="../../assets/us.jpg" style="width: 30%;">
+      <div class="estrelas">
+        <ion-grid>
+          <ion-row>
+            
+            <ion-col class="estrela"  (click)="efeitoEstrela(1)">
+              <img  id="est1" src="../../assets/icon/estrelaVazia.png" style="width: 65%;">
+            </ion-col>
+
+            <ion-col class="estrela"  (click)="efeitoEstrela(2)">
+             <img  id="est2" src="../../assets/icon/estrelaVazia.png" style="width: 65%;">
+            </ion-col>
+
+            <ion-col class="estrela"  (click)="efeitoEstrela(3)">
+             <img  id="est3" src="../../assets/icon/estrelaVazia.png" style="width: 65%;">
+            </ion-col>
+
+            <ion-col class="estrela"  (click)="efeitoEstrela(4)">
+             <img  id="est4" src="../../assets/icon/estrelaVazia.png" style="width: 65%;">
+            </ion-col>
+
+            <ion-col class="estrela"  (click)="efeitoEstrela(5)">
+             <img  id="est5" src="../../assets/icon/estrelaVazia.png" style="width: 65%;">
+            </ion-col>
+
+          </ion-row>
+        </ion-grid>
+      </div>
+      <div class="comentario">
+        <ion-grid>
+          <ion-row>
+            <ion-col size='12'>
+              <label><b>Criticas</b> ou <b>Elogios</b></label>
+            </ion-col>
+            
+            <form [formGroup]="comentarioClassificacaoMotorista" (submit)="darPontuacaoMotorista()">
+              <ion-col size='12'>
+                <textarea  formControlName="comentario" id="criticaElegioId" class="textComentario" rows="6" value=''></textarea>
+              </ion-col>
+              <ion-col size='12'>
+                <ion-button type="submit">Pronto</ion-button>
+              </ion-col>
+            </form>
+
+          </ion-row>
+        </ion-grid>
+      </div>
+      
+    </div>
+
   </div>
+
+
 </ion-content>

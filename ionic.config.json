@@ -1,5 +1,7 @@
 {
   "name": "uby1.0.0",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

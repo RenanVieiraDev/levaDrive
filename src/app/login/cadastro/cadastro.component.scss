@@ -1,0 +1,55 @@
+ul{
+  list-style: none;
+  padding: 0px;
+}
+li{
+  background:rgba(225,225,225,.5);
+  padding: 5px;
+  border-radius: 50px;
+  display: inline;
+  margin: 5px;
+}
+li:hover{
+  background:rgba(132 ,112 ,255,.9);
+}
+
+ion-content{
+    --ion-background-color:linear-gradient(to bottom,rgba(255,0,0,.8) 10%,rgba(255 ,99 ,71,.7) 70%);
+  }
+  .loginContainer{
+    padding: 0px;
+    width: 100%;
+    text-align: center;
+    color: white;
+  }
+  .divInputContainers{
+    width: 90%; 
+    padding:0px 5px;
+    margin:20px auto;
+  }
+   .inptLogin{
+     border: none;
+     background-color: rgba(225,225,225,.3);
+     border-radius: 50px;
+     padding: 7px 15px;
+     color: white;
+     outline:none;
+     width: 100%;
+   }
+   .iconInput{
+     font-size: 40px;
+   }
+   .linha{
+    color:rgba(0,0,0,.1);
+    background-color:rgba(0,0,0,.1);
+    height: 1px;
+    width: 100%;
+   }
+   .containerInfo{
+     margin: 10% auto;
+     width: 80%;
+     padding: 5px;
+     background-color: rgba(225,225,225,.2);
+     border-radius: 15px;
+     //border: 6px solid rgba(225,225,225,.3);
+   }

@@ -1,0 +1,63 @@
+<ion-content>
+    <div class="loginContainer">
+        <div style="width: 100%;">
+            <img src="../../assets/logoLoginLeva.png" style="width: 70%;">
+            <h1><span>DRIVE</span><span style="color:#EEDD82;">TAXI</span></h1>
+        </div>
+        <form [formGroup]="dadosLogin" (submit)="loginEmailSenha()">
+            <div class="divInputContainers">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="text-align: end;"><ion-icon name="contact" class="iconInput"></ion-icon></td>
+                        <td style="text-align: left;"><input formControlName="email" type="text" class="inptLogin"></td>
+                    </tr>
+                </table>  
+            </div>
+    
+            <div class="divInputContainers">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="text-align: end;"><ion-icon name="lock" class="iconInput"></ion-icon></td>
+                        <td style="text-align: left;"> <input formControlName="senha" type="password" class="inptLogin"></td>
+                    </tr>
+                </table>
+            </div>
+    
+            <div style="width: 100%;margin-bottom: 15px;">
+                <ion-button color="light" shape="round" type="submit" *ngIf="loading === false">Entrar</ion-button>
+                <img src="../../assets/loadings/Infinity-1s-200px.gif" style="width: 20%;" *ngIf="loading">
+            </div>
+        </form>
+
+        <div style="width: 80%;margin: 10px auto;">
+            <ion-grid>
+                <ion-row>
+                    <ion-col size="5">
+                        <hr class="linha" />
+                    </ion-col>
+                    <ion-col size="2">
+                        <b>OU</b>
+                    </ion-col>
+                    <ion-col size="5">
+                        <hr class="linha" />
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+
+           <!-- <ion-button (click)="loginComGoogle()" style="margin: 0px 15%;" shape="round" fill="outline" size="small" expand="full">
+                <ion-icon slot="start" name="logo-google"></ion-icon>
+                google
+            </ion-button>-->
+        </div>
+
+        <div style="width: 90%;text-align: left;padding: 30px 0px 0px 10px;">
+             Não é cadastrado? <a style="color:#EEDD82;" href="#" routerLink="/cadastro"><b>Cadastre-se</b></a>
+        </div>  
+
+        <!--<ion-grid *ngIf="dadosLoginGoogle">
+            <ion-row>
+                <ion-col size="12" *ngFor="let key of dadosLoginGoogle">{{key}}</ion-col>
+            </ion-row>
+        </ion-grid>-->
+    </div>
+</ion-content>

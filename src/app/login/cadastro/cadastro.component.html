@@ -1,0 +1,139 @@
+<ion-content>
+    <div class="loginContainer" *ngIf="telaConfEmail === false">
+        <ion-grid>
+            <ion-row>
+                <ion-col size="2" style="text-align: end;">
+                    <a href="#" routerLink="/login"><img src="../../../assets/logoLoginLeva.png" style="width: 100%;"></a>
+                </ion-col>
+                <ion-col style="text-align: left;">
+                    <h1 style="margin: 10px 0px;padding: 0px;">Cadastro</h1>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+      
+        <form [formGroup]="dadosClientes" (submit)="cadastroCliente()">
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="happy" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>Nome:</label>
+                        <input formControlName="nome" type="text" class="inptLogin" placeholder="Nome completo">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="transgender" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <ul>
+                            <li>
+                                <input formControlName="sexo" type="radio" style="display: none;" id="masculino" name="sexo" value="Masculino">
+                                <label for="masculino">Masculino</label>
+                            </li>
+                            <li>
+                                <input formControlName="sexo" type="radio" style="display: none;" name="sexo" id="feminino" value="Feminino">
+                                <label for="feminino">Feminino</label>
+                            </li>
+                            <li>
+                                <input formControlName="sexo" type="radio" style="display: none;" name="sexo" id="outros" value="Outros">
+                                <label  for="outros">Outros</label>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>  
+          </div>
+          
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="gift" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>Nascimento:</label>
+                        <input formControlName="dataNascimento" type="date" class="inptLogin" placeholder="Nome completo">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="business" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>CPF:</label>
+                        <input formControlName="cpf" type="text" class="inptLogin" placeholder="000.000.000-00">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="at" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>Email:</label>
+                        <input formControlName="email" type="email" class="inptLogin" placeholder="seuemailaqui@....com">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="lock" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>Senha:</label>
+                        <input formControlName="senha" type="password" class="inptLogin">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+
+          <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;"><ion-icon name="lock" class="iconInput"></ion-icon></td>
+                    <td style="text-align: left;">
+                        <label>Confirme senha:</label>
+                        <input formControlName="confSenha" type="password" class="inptLogin">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+      
+          <div style="width: 100%;margin-bottom: 15px;">
+              <ion-button color="light" shape="round" type="submit" *ngIf="loadingButton === false">Entrar</ion-button>
+                <img src="../../../assets/loadings/Infinity-1s-200px.gif" *ngIf="loadingButton" style="width: 25%;margin-top: -15px;">
+          </div>
+      </form>
+    </div>
+
+    <div class="loginContainer" *ngIf="telaConfEmail">
+        <div class="containerInfo">
+            <ion-icon color="success" name="thumbs-up" style="font-size: 55px;"></ion-icon>
+            <p>Parabéns, seu cadastro foi realizado com sucesso.</p>
+          <ion-icon name="mail-unread" style="font-size: 100px;"></ion-icon>
+            <p>
+                Enviamos um email de confirmação
+                para seu email, por favor entre no seu
+                email, verifique sua caixa de entrada
+                e no email que enviamos estará o link
+                para confirmação da sua conta, logo que
+                confirmar você poderá fazer o acesso
+                com seu email e senha registrado.
+            </p>
+            <ion-button style="margin: 10px;" shape="round" (click)="inicioCof()">
+                <b>Inicio</b>
+            </ion-button>
+        </div>
+    </div>
+</ion-content>

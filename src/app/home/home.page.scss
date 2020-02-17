@@ -1,1 +1,221 @@
+.itemPesquisa{
+    background-color: white;
+    box-shadow: 3px 3px 3px rgba(0,0,0,.2);
+}
+.ContainerMenuConf{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 2px;
+    padding: 15px;
+    background-color: #fff;
+}
+.imgConfLogo{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto -15px auto;
+}
 
+.aguardeCorrida{
+    position: absolute;
+    padding: 8px;
+    top: 10%;
+    width: 90%;
+    background-color: #fff;
+    border-radius:15px;
+    box-shadow: 3px 3px 3px rgba(0,0,0,.3);
+}
+.navegacaoMotoristaContainer{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: 120px;
+    background-color: #fff;
+    padding: 10px;
+}
+.chatFiltro{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top:0px;
+    left: 0px;
+    background-color:rgba(255,69,0,.5);
+    text-align: center;
+}
+.containerChat{
+    color:white;
+    margin: 10px;
+    background-color: rgba(0,0,0,.6);
+    border-radius: 15px;
+    height: 95%;
+    padding: 0px;
+    box-shadow: 3px 3px 3px rgba(0,0,0,.5);
+}
+.topChat{
+    padding: 10px;
+}
+.imgHeadChat{
+    width: 100%;
+    border-radius: 50%;
+}
+.online{
+    border:2px solid greenyellow;
+}
+.nomemotorista{
+    position: relative;
+    top: 35%;
+    transform: translateY(-35%);
+}
+.btnClose{
+    font-size: 25px;
+    font-style: oblique;
+}
+.tela{
+    padding: 10px;
+    height: 67%;
+    max-height: 67%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.msgVoce small{
+  margin: 0px;
+  padding: 0px;
+}
+.msgVoce p{
+    margin: 0px;
+    padding: 0px;
+}
+.msgVoce{
+    margin-top: 10px;
+    color: black;
+    background-color:whitesmoke;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px rgba(225,225,225,.3);
+    align-self: flex-end;
+    max-width: 60%;
+    text-align: end;
+}
+
+.msgMotorista small{
+    margin: 0px;
+    padding: 0px;
+  }
+  .msgMotorista p{
+      margin: 0px;
+      padding: 0px;
+      text-align: left;
+  }
+
+.msgMotorista{
+    margin-top: 10px;
+    color: black;
+    background-color: rgba(64,224,208,.9);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 1px rgba(225,225,225,.3);
+    align-self: flex-start;
+    max-width: 60%;
+    text-align: left;
+}
+
+.areaTextoSend{
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: rgba(0,0,0,.4);
+    padding: 10px;
+    border-radius: 10px;
+    outline:none;
+}
+.btnSend{
+    margin-top: 9%;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+	color: #ffffff;
+	padding: 12px;
+	background: -webkit-gradient(
+		linear, left top, left bottom,
+		from(#42ff42),
+		to(#146600));
+	background: linear-gradient(
+		top,
+		#42ff42 0%,
+		#146600);
+	border-radius: 10px;
+	border: 1px solid #134201;
+	box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	text-shadow:
+		0px -1px 0px rgba(000,000,000,0.4),
+        0px 1px 0px rgba(255,255,255,0.3);
+    outline:none;
+}
+.off{
+    display: none;
+}
+.menuBotoesCorridaAtiva{
+    text-align: center;
+    margin: 0px 13px;
+    background-color: rgba(255 ,255 ,255,.9);
+    border-radius: 10px;
+    padding: 10px;
+    width: 60%;
+}
+.menuBotoesCorridaAtiva ul{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+.menuBotoesCorridaAtiva li{
+    margin: 0px;
+    padding: 0px;
+}
+.classificarContainer{
+    position: absolute;
+    top:0px;
+    background-color: #fff;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    height: 100%;
+}
+.containerEstrela{
+    padding: 0px;
+    margin: 20px 0px;
+}
+.estrela{
+    border-radius: 50px;
+    padding: 0px;
+    margin: 0px 3px;
+}
+.comentario{
+    width: 100%;
+    margin: 10px 0px;
+}
+.textComentario{
+    outline:none;
+    background:rgba(0,0,0,.2);
+    border-radius: 6px;
+    width: 90%;
+    height: 100%;
+    border: none;
+    resize: none;
+    padding: 15px;
+    color:white;
+}
+
+.inputTarifaCorrida{
+    border-radius: 50px;
+    border:none;
+    padding: 5px;
+    background-color: rgba(0,0,0,.1);
+    outline:none;
+    color:red;
+    width: 100%;
+}
