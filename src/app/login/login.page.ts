@@ -52,17 +52,6 @@ export class LoginPage implements OnInit {
       this.presentAlert('Ops..','a campos invalidos!','Varifique os campos e tente novamente.');
     }
   }
-  /*
-    obj . email           // 'eddyverbruggen@gmail.com' 
-    obj . userId          // ID do usuário 
-    obj . displayName     //
-      obj . 'Eddy Verbruggen' . familyName      // 'Verbruggen' 
-    obj . givenName       // 'Eddy' 
-    obj . imageUrl        // 'http://link-to-my-profilepic.google.com' 
-    obj . idToken         // idToken que pode ser trocado para verificar a identidade do usuário. 
-    obj . serverAuthCode  //Código de autenticação que pode ser trocado por um token de acesso e atualizar o token para 
-    obj de acesso offline . accessToken     // token de acesso OAuth2
-  */
 
   public loginComGoogle(){
     this.googlePlus.login({})
@@ -86,24 +75,26 @@ export class LoginPage implements OnInit {
           case 0:
             this.auth.salvaDadosNoStorage([{nomeId:'UID',value:uidUser.uIdUser}]);
             this.auth.salvaDadosNoStorage([{nomeId:'nivel',value:resposta.nivel}]);
-            //this.rota.navigate(['/ADMComponent']);
+            this.rota.navigate(['/ADMComponent']);
             break;
           case 1:
             this.auth.salvaDadosNoStorage([{nomeId:'UID',value:uidUser.uIdUser}]);
             this.auth.salvaDadosNoStorage([{nomeId:'nivel',value:resposta.nivel}]);
-            //this.rota.navigate(['/dashboardComponent']);
+            this.rota.navigate(['/home']);
             break;
           case 2:
-            this.auth.salvaDadosNoStorage([{nomeId:'UID',value:uidUser.uIdUser}]);
-            this.auth.salvaDadosNoStorage([{nomeId:'nivel',value:resposta.nivel}]);
-            this.rota.navigate(['/home']);
+            this.presentAlert('Login erro','Cliente','Caro cliente, baixe a versão DriveTaxi para cliente para ter acesso!esta versão é voltada para motoristas');
+            //this.rota.navigate(['/home']);
             break;
         }
       })
       .catch((err)=>{
-        console.log(err);
-        let msgErr = this.validacao.tradutorCode(err.code);
-        this.presentAlert('ops..',err.code,msgErr);
+        if(err.code === undefined){
+          this.presentAlert('Login erro','Cliente','Caro cliente, baixe a versão DriveTaxi para ter acesso! esta versão é voltada para motoristas');
+        }else{
+          let msgErr = this.validacao.tradutorCode(err.code);
+          this.presentAlert('ops..',err.code,msgErr);
+        }
         this.loading = false;
       });
     }else{

@@ -30,7 +30,7 @@ export class authService implements CanActivate{
 
     public getNivelUser(uId):Promise<any>{
         return new Promise<any>((resolve,reject)=>{
-            firebase.database().ref(`clientes/${uId}`)
+            firebase.database().ref(`motoristas/${uId}`)
             .once('value')
             .then((resposta)=>{
                resolve(resposta.val());

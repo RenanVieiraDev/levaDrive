@@ -11,7 +11,18 @@
             </ion-row>
         </ion-grid>
       
-        <form [formGroup]="dadosClientes" (submit)="cadastroCliente()">
+        <form [formGroup]="dadosMotorista" (submit)="cadastroMotorista()">
+        
+        <div style="width: 100%;">
+           <ion-grid>
+               <ion-row>
+                   <ion-col size="4" style="margin: 0px;padding: 0px;"> <hr style="width: 100%;height: 1px;background-color: rgba(225,225,225,.9);"/> </ion-col>
+                   <ion-col size="4" style="margin: 0px;padding: 0px;"><b>Pessoais</b></ion-col>
+                   <ion-col size="4" style="margin: 0px;padding: 0px;"> <hr style="width: 100%;height: 1px;background-color: rgba(225,225,225,.9);"/> </ion-col>
+               </ion-row>
+           </ion-grid>
+        </div>
+
           <div class="divInputContainers">
             <table style="width: 100%;">
                 <tr>
@@ -22,6 +33,25 @@
                     </td>
                 </tr>
             </table>  
+          </div>
+
+          <div class="divInputContainers">
+                <ion-grid style="width: 100%;">
+                    <ion-row>
+                        <ion-col size="2">
+                            <img src="../../../assets/icon/camera.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('perfil')">
+                         </ion-col>
+                         <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('perfil')">
+                             <div style="text-align: center;">
+                                 <img [src]="imgPerfilMotor.base64" *ngIf="imgPerfilMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                                 <div style="width: 100%;text-align: left;" *ngIf="imgPerfilMotor.base64 === null">
+                                     imagem de perfil...
+                                 </div>
+                             </div>
+                             <input type="file" style="display: none;" #imgPerf accept=".jpg,.png,.jpeg" (change)="eviarImgPerf()">       
+                         </ion-col>
+                    </ion-row>
+                </ion-grid> 
           </div>
 
           <div class="divInputContainers">
@@ -109,7 +139,68 @@
                 </tr>
             </table>  
           </div>
+
+          <div style="width: 100%;">
+            <ion-grid>
+                <ion-row>
+                    <ion-col size="4" style="margin: 0px;padding: 0px;"> <hr style="width: 100%;height: 1px;background-color: rgba(225,225,225,.9);"/> </ion-col>
+                    <ion-col size="4" style="margin: 0px;padding: 0px;"><b>Veiculo</b></ion-col>
+                    <ion-col size="4" style="margin: 0px;padding: 0px;"> <hr style="width: 100%;height: 1px;background-color: rgba(225,225,225,.9);"/> </ion-col>
+                </ion-row>
+            </ion-grid>
+         </div>
+
+         <div class="divInputContainers">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="text-align: end;">
+                        <img src="../../../assets/icon/placaVeiculo.png" style="width: 60px;height: 40px;margin-top: 5%;"> 
+                   </td>
+                    <td style="text-align: left; padding-left: 5px;">
+                        <label>Placa do veiculo:</label>
+                        <input formControlName="placa" type="text" class="inptLogin">
+                    </td>
+                </tr>
+            </table>  
+          </div>
+
+          <div class="divInputContainers">
+            <ion-grid style="width: 100%;">
+                <ion-row>
+                    <ion-col size="2">
+                        <img src="../../../assets/icon/icoCNH.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('CNH')">
+                     </ion-col>
+                     <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('CNH')">
+                         <div style="text-align: center;">
+                             <img [src]="imgCNHVeliculo.base64" *ngIf="imgCNHVeliculo.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                             <div style="width: 100%;text-align: left;" *ngIf="imgCNHVeliculo.base64 === null">
+                                 Imagem CNH...
+                             </div>
+                         </div>
+                         <input type="file" style="display: none;" #imgCnh accept=".jpg,.png,.jpeg" (change)="eviarImgCnh()">       
+                     </ion-col>
+                </ion-row>
+            </ion-grid> 
+      </div>
       
+      <div class="divInputContainers">
+        <ion-grid style="width: 100%;">
+            <ion-row>
+                <ion-col size="2">
+                    <img src="../../../assets/icon/veiculoImagem.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('veiculo')">
+                 </ion-col>
+                 <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('veiculo')">
+                     <div style="text-align: center;">
+                         <img [src]="imgVeiculoMotor.base64" *ngIf="imgVeiculoMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                         <div style="width: 100%;text-align: left;" *ngIf="imgVeiculoMotor.base64 === null">
+                             Imagem do veiculo...
+                         </div>
+                     </div>
+                     <input type="file" style="display: none;" #imgVeiculo accept=".jpg,.png,.jpeg" (change)="eviarImgVeiculo()">       
+                 </ion-col>
+            </ion-row>
+        </ion-grid> 
+  </div>
           <div style="width: 100%;margin-bottom: 15px;">
               <ion-button color="light" shape="round" type="submit" *ngIf="loadingButton === false">Entrar</ion-button>
                 <img src="../../../assets/loadings/Infinity-1s-200px.gif" *ngIf="loadingButton" style="width: 25%;margin-top: -15px;">
@@ -126,9 +217,8 @@
                 Enviamos um email de confirmação
                 para seu email, por favor entre no seu
                 email, verifique sua caixa de entrada
-                e no email que enviamos estará o link
-                para confirmação da sua conta, logo que
-                confirmar você poderá fazer o acesso
+                e click no link para confirmação da sua conta,
+                logo que confirmar, você poderá fazer o acesso
                 com seu email e senha registrado.
             </p>
             <ion-button style="margin: 10px;" shape="round" (click)="inicioCof()">

@@ -2,25 +2,54 @@ import * as firebase from 'firebase';
 
 export class Cadastros{
 
-    public cadastrarCliente(dadosCliente):Promise<any>{
-        dadosCliente.nivel = 2;
-        dadosCliente.horaDataRegistro = this.retornaHoraDataAtual();
-        dadosCliente.verificacao = false;
-        dadosCliente.saldo = 0;
+    public cadastrarMotorista(dadosMotorista,imagens):Promise<any>{
+        dadosMotorista.nivel = 1;
+        dadosMotorista.horaDataRegistro = this.retornaHoraDataAtual();
+        dadosMotorista.verificacao = false;
+        dadosMotorista.saldo = 0;
+        dadosMotorista.placa = dadosMotorista.placa.toUpperCase();
         return new Promise((resolve,reject)=>{
-            firebase.auth().createUserWithEmailAndPassword(dadosCliente.email,dadosCliente.senha)
+            firebase.auth().createUserWithEmailAndPassword(dadosMotorista.email,dadosMotorista.senha)
             .then((ok)=>{
-                firebase.database().ref(`clientes/${ok.user.uid}`)
-                .set(dadosCliente)
+                dadosMotorista.UIDMotorista = ok.user.uid;
+                dadosMotorista.localAtual={lat:0,lng:0};
+                dadosMotorista.online = false;
+
+                dadosMotorista.corridas = [{nomeCliente:null,
+                    localClienteCords:'system',
+                    destinoCords:'system',
+                    UIDCliente:'system',
+                    destinoNome:'system',
+                    dataHoraPedido:'system',
+                    pedidoAceito:'system',
+                    motoristaUID:'system',
+                    motoristaNome:'system',
+                    localAtualMotorista:'system',
+                    pedidoNegadoPor:'system',
+                    distancia:'system',
+                    duracao:'system',
+                    valorCorrida:'system',
+                    statusDeCorrida:'system',
+                    propostaClienteValor:'system',
+                    contraPropostaMotorista:'system'}];
+                    
+
+                dadosMotorista.chat = [{de:'system',para:ok.user.uid,msg:'Sejá Bem vindo! :)'}];
+                firebase.database().ref(`motoristas/${ok.user.uid}`)
+                .set(dadosMotorista)
                 .then(()=>{
+                    for(let key in imagens){
+                         this.salvaImgStorage(`imagensMotoristas/${ok.user.uid}/${imagens[key].nomeImagem}`,imagens[key].arquivo);    
+                    }
                     var use = firebase.auth().currentUser;
                     use.sendEmailVerification()
                     .then(()=>{
-                      resolve(dadosCliente)
+                        resolve(dadosMotorista)
                     })
                     .catch((err)=>{
                         reject(err)
                     })
+                   
                 })
                 .catch((err)=>{
                     reject(err)
@@ -30,6 +59,12 @@ export class Cadastros{
                 reject(err);
             })
         })
+    }
+
+    public salvaImgStorage(pathNome,arquivo):void{
+        firebase.storage().ref()
+        .child(pathNome)
+        .put(arquivo);
     }
 
     public cadastrarPedidoCorrida(dadosMotorista,dadosCorrida):Promise<any>{
@@ -58,18 +93,86 @@ export class Cadastros{
             })
         })
     }
-
-    public cadastrarEstrelasParaMotorista(UidMotorista,valorEstrela,comentario):Promise<any>{
+    public cadastrarEstrelasParaMotorista(valor,val,v):Promise<any>{
+        return new Promise<any>((resolve,reject)=>{})
+    }
+    public alteraValorOnline(uidMotor,valor):Promise<any>{
         return new Promise<any>((resolve,reject)=>{
-            firebase.database().ref(`motoristas/${UidMotorista}/saldoClassificacao/`)
-            .push({quantidadeEstrelas:valorEstrela,comentario:comentario})
+            firebase.database().ref(`motoristas/${uidMotor}/online`)
+            .set(valor)
             .then(()=>{
                 resolve('ok');
             })
             .catch((err)=>{
                 reject(err);
-            });
+            })
         });
+    }
+    public alteraLocalizacao(uidMotor,valor):Promise<any>{
+        return new Promise<any>((resolve,reject)=>{
+            firebase.database().ref(`motoristas/${uidMotor}/localAtual`)
+            .set(valor)
+            .then(()=>{resolve('ok')})
+            .catch((err)=>{reject(err)})
+        });
+    }
+
+    async cadastraContraPropostaParaCliente(UIDCliente,valorContraProposta,dadosMotor,urlImagemMotorista){
+      try{
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/motoristaNome`).set(dadosMotor.nome);
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/urlImagemPerfilMotorista`).set(urlImagemMotorista);
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/motoristaUID`).set(dadosMotor.UIDMotorista);
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/localAtualMotorista`).set(dadosMotor.localAtual);
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/contraPropostaMotorista/valor`).set(valorContraProposta);
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/propostaClienteValor/propostaAceita`).set('contraProposta');           
+      }catch{
+        return "erro!";
+      }
+    }
+
+    async aceitaPedido(UIDCliente,urlImagemMotorista){
+        firebase.database().ref(`motoristas/${localStorage.getItem('UID')}`)
+        .once('value')
+        .then( async dadosMotor=>{
+            try{
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/propostaClienteValor/propostaAceita`).set('ok');
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/pedidoAceito`).set('ok');
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/localAtualMotorista`).set(dadosMotor.val().localAtual);
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/motoristaNome`).set(dadosMotor.val().nome);
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/motoristaUID`).set(localStorage.getItem('UID'));
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/contraPropostaMotorista/valor`).set(0);
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/urlImagemPerfilMotorista`).set(urlImagemMotorista);
+                return 'ok';
+            }catch{
+                return 'erro!';
+            }
+           
+        })
+        .catch(err=>{
+            return err;
+        })
+    }
+
+    async negarAceiteDePedido(UIDCliente,arrayUIDMotoristasRecusa=[]){
+        firebase.database().ref(`motoristas/${localStorage.getItem('UID')}`)
+        .once('value')
+        .then( async dadosMotor=>{
+            try{
+                arrayUIDMotoristasRecusa.push(localStorage.getItem('UID'));
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/pedidoNegadoPor`).set(arrayUIDMotoristasRecusa);
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/motoristaUID`).set(localStorage.getItem('UID'));
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/contraPropostaMotorista/valor`).set(0);
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/propostaClienteValor/propostaAceita`).set('nao');
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/pedidoAceito`).set('nao');
+                await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/statusDeCorrida`).set('recusada');
+                return 'ok';
+            }catch{
+                return 'erro!';
+            }
+        })
+        .catch( err => {return err})
+
+        
     }
 
 }

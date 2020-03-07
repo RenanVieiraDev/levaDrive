@@ -1,6 +1,7 @@
 export class ValidacoesForm{
-    public validarFormularioCadastroCliente(dadosForm):Promise<any>{
-        //resolve 0 === ok;//REJECT > / 1 nome /2 sexo / 3 data nascimento / 4 CPF /5 EMAIL/ 6 SENHA;
+    public validarFormularioCadastroMotorista(dadosForm,imagens):Promise<any>{
+        //resolve 0 === ok;//REJECT > / 1 nome /2 sexo / 3 data nascimento / 4 CPF /5 EMAIL/ 6 SENHA; 7 placa
+        //8 imagem perfil /9 imagem CNH/ 10 imagem Veiculo
         return new Promise<number>((resolve,reject)=>{
             if(!this.valoresVazios(dadosForm.nome))reject(1);
             if(!this.valoresVazios(dadosForm.sexo))reject(2);
@@ -8,6 +9,10 @@ export class ValidacoesForm{
             if(!this.testeCpf(dadosForm.cpf))reject(4);
             if(!this.testeEmail(dadosForm.email))reject(5);
             if(!this.testeSenha(dadosForm.senha,dadosForm.confSenha))reject(6);
+            if(!this.validaPlacaVeiculo((dadosForm.placa).toUpperCase()))reject(7);
+            if(!this.verifiraSeAImagem(imagens[0].arquivo))reject(8);
+            if(!this.verifiraSeAImagem(imagens[1].arquivo))reject(9);
+            if(!this.verifiraSeAImagem(imagens[2].arquivo))reject(10);
             resolve(0)
         });
     }
@@ -32,6 +37,21 @@ export class ValidacoesForm{
     public valoresVazios(valor):boolean{
         if(valor !== null && valor.length >= 4)return true;
         return false;
+    }
+    public verifiraSeAImagem(arquivo){
+        if(arquivo != null ){
+            if(arquivo.size > 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public validaPlacaVeiculo(entradaPlaca):boolean{
+        let regex = new RegExp("^[A-Z]{3}[0-9]{4}$");
+        return regex.test(entradaPlaca);
     }
 
     public tradutorCode(msgCode):string{

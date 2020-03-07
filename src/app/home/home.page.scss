@@ -1,15 +1,26 @@
-.itemPesquisa{
-    background-color: white;
-    box-shadow: 3px 3px 3px rgba(0,0,0,.2);
+ion-content{
+    --ion-background-color:linear-gradient(to bottom,rgba(255,0,0,.8) 10%,rgba(255 ,99 ,71,.7) 70%);
 }
-.ContainerMenuConf{
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    bottom: 2px;
-    padding: 15px;
-    background-color: #fff;
+.telaInicial{
+    width: 100%;
+    height: 100%;
 }
+.telaNotifications{
+    height: 55%;
+    max-height: 55%;
+    padding: 10px;
+    overflow-y: auto;
+}
+.peinelSelected{
+    width: 53px;
+    height: 53px;
+    margin: 0px;
+    border-radius: 85px;
+    padding: 0px;
+    border: solid 2px rgba(30, 144 ,255,.9);
+    background-color: rgba(225,225,225,.7);
+}
+
 .imgConfLogo{
     width: 50px;
     height: 50px;
@@ -18,15 +29,6 @@
     margin: 0 auto -15px auto;
 }
 
-.aguardeCorrida{
-    position: absolute;
-    padding: 8px;
-    top: 10%;
-    width: 90%;
-    background-color: #fff;
-    border-radius:15px;
-    box-shadow: 3px 3px 3px rgba(0,0,0,.3);
-}
 .navegacaoMotoristaContainer{
     position: absolute;
     left: 0px;
@@ -36,6 +38,25 @@
     background-color: #fff;
     padding: 10px;
 }
+.listaContatosChat{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    background-color:rgb(255,255,255);
+}
+.contato{
+    padding: 0px;
+    margin: 5px 2px;
+    //background-color: rgba(0,0,0,.1);
+}
+.contato:hover{
+    background-color: rgba(0,0,0,.1);
+}
+
 .chatFiltro{
     position: absolute;
     width: 100%;
