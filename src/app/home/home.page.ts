@@ -1,49 +1,44 @@
-import {
-  GoogleMaps,
-  GoogleMap,
-  GoogleMapsEvent,
-  GoogleMapOptions,
-  CameraPosition,
-  MarkerOptions,
-  Marker,
-  Environment,
-  MyLocation,
-  GoogleMapsAnimation,
-  Geocoder
-} from '@ionic-native/google-maps';
+import {GoogleMaps,GoogleMap,GoogleMapOptions,Marker,Environment,GoogleMapsAnimation} from '@ionic-native/google-maps';
 import * as firebase from 'firebase';
-import { Component,ViewChild, OnInit,NgZone, ɵConsole } from '@angular/core';
+import { Component,ViewChild, OnInit,NgZone} from '@angular/core';
 import {Platform,LoadingController} from '@ionic/angular';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import {Cadastros} from '../shared/services/cadastros.service';
 import {GetRealTimeDados} from '../shared/services/getSetRealTimeDados.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
-import { async } from '@angular/core/testing';
 declare var google:any;
+import { Insomnia } from '@ionic-native/insomnia/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
+
 export class HomePage implements OnInit{
 
 @ViewChild('map',{static:true}) mapaElement:any;
-
 private loading:any;
 private map:GoogleMap
 private origenMaker:Marker;
 private googleDirectionServices = new google.maps.DirectionsService();
 private pathDaCorrida:any;
 private pathDoChat:any;
+private jafoiMapeado= false;
 
-
-//app motorista
+//sistema
+private motoristaOnOff:boolean = false;
+private painel = 'corridas'; //existe três painel (corridas),(dashboard) e (mapa);
+private setIntervalProximidadeMotoristaUsuario:any;
+private setIntervalProximidadeMotoristaDestino:any;
+private menuInfoCorrida = false;
+private notificacaoProximidadeDestinoFinal = false;
+//motorista
 private corridasNotificacoes=[];
 private corridasFinalizadas=[];
 private corridasRecusadas=[];
-private painel = 'corridas'; //existe três painel (corridas),(dashboard) e (mapa);
 private dadosCorridaAceita; //corrida aceita no momento
 private aconpanhandoCorridas:string = 'off';
 private corridaIniciadaOn = 'off';
@@ -60,35 +55,44 @@ private conversaChat = [];
     private zone:NgZone,
     public cadastro:Cadastros,
     public realTime:GetRealTimeDados,
-    public alertController: AlertController
+    public alertController: AlertController,
+    private insomnia: Insomnia,
+    private background: BackgroundMode
     ) {}
 
   async ngOnInit(){
-    this.urlImagemPerfilMotorista = await this.realTime.pegaImagemPerfilMotorista();
-    //inicialização do modo online
-    this.inicializacaoDoModoOnline({
-      minhaLocalizacao:await this.minhaLocalizacao(),
-      online: new Date().getTime()
-    });
-    setInterval(async ()=>{
-      this.inicializacaoDoModoOnline({
-        minhaLocalizacao:await this.minhaLocalizacao(),
-        online: new Date().getTime()
-      });
-    },2500*60);
+    try{
+      this.mapaElement = this.mapaElement.nativeElement;
+      this.urlImagemPerfilMotorista = await this.realTime.pegaImagemPerfilMotorista();
+      this.inicializacaoDoModoOnline({minhaLocalizacao:await this.minhaLocalizacao(),online: new Date().getTime()});
+      setInterval(async ()=>{
+        this.inicializacaoDoModoOnline({
+          minhaLocalizacao:await this.minhaLocalizacao(),
+          online: new Date().getTime()
+        });
+      },2500*60);
+      if(this.plataforma.is('android'))await this.insomnia.keepAwake();
+    }catch(err){
+      console.log(err);
+    }
   }
 
   public inicializacaoDoModoOnline(...params):void{
     //if(this.aconpanhandoOChat === 'off')this.aconpanhaChat(`motoristas/${localStorage.getItem('UID')}/chat/`);
     if(this.aconpanhandoCorridas === 'off')this.aconpanhaCorridas(`motoristas/${localStorage.getItem('UID')}/corridas/`);
-    this.cadastro.alteraValorOnline(localStorage.getItem('UID'),params[0].online);
+    this.cadastro.alteraValorOnline(localStorage.getItem('UID'),params[0].online).then(()=>{this.motoristaOnOff = true;}).catch(()=>{this.motoristaOnOff = true;})
+    .then(()=>{this.motoristaOnOff=true}).catch(()=>{this.motoristaOnOff=false});
     this.cadastro.alteraLocalizacao(localStorage.getItem('UID'),params[0].minhaLocalizacao);
   }
 
   async minhaLocalizacao(){
-    let watch = await this.geolocation.getCurrentPosition({enableHighAccuracy :  true });
-    let meuLOcal = {lat:watch.coords.latitude,lng:watch.coords.longitude}
-    return meuLOcal;
+    try{
+      let watch = await this.geolocation.getCurrentPosition({enableHighAccuracy :  true });
+       let meuLOcal = {lat:watch.coords.latitude,lng:watch.coords.longitude}
+      return meuLOcal;
+    }catch(err){
+      alert(err);
+    }
   }
 
   public aconpanhaChat(pathChatAtual):void{
@@ -132,18 +136,32 @@ private conversaChat = [];
         corridaSnapshot.val()[key].contraPropostaMotorista.valor > 0
       ){
         //contra proposta aceita ======================================================================
-        if(this.corridaIniciadaOn === 'off'){
+        if(this.corridaIniciadaOn === 'off' && corridaSnapshot.val()[key].statusDeCorrida === 'aguardando'){
+          this.painel = 'mapa';
           this.dadosCorridaAceita = corridaSnapshot.val()[key];
           this.corridaIniciadaOn = 'on';
           console.log('Verifique se tem mais pedidos e negue todos');
-          this.painel = 'mapa';
-          this.mapaElement = this.mapaElement.nativeElement;
           this.mapaElement.style.width = this.plataforma.width()+'px';
           this.mapaElement.style.height = this.plataforma.height()+'px';
           this.mapaElement.style.background = 'red';
           this.loadMap(corridaSnapshot.val()[key].UIDCliente,{usuario:corridaSnapshot.val()[key].localClienteCords,destino:corridaSnapshot.val()[key].destinoCords});
         }
-      
+        if(corridaSnapshot.val()[key].statusDeCorrida === 'cancelada' && corridaSnapshot.val()[key].cancelamentoVisto == false){
+          this.cadastro.alteraEstadoDeVistoCorridaCancelada(corridaSnapshot.val()[key].UIDCliente);
+          console.log('pegue o valor da contraProposta e divida por 2 e adiciona ao saldo do motorista');
+          this.presentAlertCorridaCanceladaPeloUsuario('Atenção!!!','A corrida foi cancelada pelo o usuario!');
+        }
+        if(corridaSnapshot.val()[key].statusDeCorrida === 'finalizada' && corridaSnapshot.val()[key].corridaAntiga == false){
+          console.log('retirar os 25% do valor do sistema');
+          console.log('acrescentar o valor dos 25% da corrida no debitoMensal do motorista');
+          console.log('adicionar o restante do valor da corrida no cridite do motorista');  
+            this.painel = 'corridas';
+            this.back();
+            this.mapaElement.style.height = "0px";
+            this.corridaIniciadaOn = 'off';
+            this.cadastro.finalizaStatusDeCorrida(corridaSnapshot.val()[key].UIDCliente);
+        }
+
       }else if(
         corridaSnapshot.val()[key].propostaClienteValor.propostaAceita === 'contraProposta' &&
         corridaSnapshot.val()[key].pedidoAceito === 'nao' &&
@@ -158,16 +176,30 @@ private conversaChat = [];
         corridaSnapshot.val()[key].contraPropostaMotorista.valor == 0
       ){
         //pedido aceito direto ==========================================================================
-        if(this.corridaIniciadaOn === 'off'){
+        if(this.corridaIniciadaOn === 'off' && corridaSnapshot.val()[key].statusDeCorrida === 'aguardando'){   
+          this.painel = 'mapa';
           this.dadosCorridaAceita = corridaSnapshot.val()[key];
           this.corridaIniciadaOn = 'on';
           console.log('Verifique se tem mais pedidos e negue todos');
-          this.painel = 'mapa';
-          this.mapaElement = this.mapaElement.nativeElement;
           this.mapaElement.style.width = this.plataforma.width()+'px';
           this.mapaElement.style.height = this.plataforma.height()+'px';
           this.mapaElement.style.background = 'red';
           this.loadMap(corridaSnapshot.val()[key].UIDCliente,{usuario:corridaSnapshot.val()[key].localClienteCords,destino:corridaSnapshot.val()[key].destinoCords});
+        }
+        if(corridaSnapshot.val()[key].statusDeCorrida === 'cancelada' && corridaSnapshot.val()[key].cancelamentoVisto == false){
+          this.cadastro.alteraEstadoDeVistoCorridaCancelada(corridaSnapshot.val()[key].UIDCliente);
+          console.log('pegue o valor da proposta docliente e divida por 2 e adiciona ao saldo do motorista');
+          this.presentAlertCorridaCanceladaPeloUsuario('Atenção!!!','A corrida foi cancelada pelo o usuario!');
+        }
+        if(corridaSnapshot.val()[key].statusDeCorrida === 'finalizada' && corridaSnapshot.val()[key].corridaAntiga == false){
+          console.log('retirar os 25% do valor do sistema');
+          console.log('acrescentar o valor dos 25% da corrida no debitoMensal do motorista');
+          console.log('adicionar o restante do valor da corrida no cridite do motorista');  
+            this.painel = 'corridas';
+            this.back();
+            this.mapaElement.style.height = "0px";
+            this.corridaIniciadaOn = 'off';
+            this.cadastro.finalizaStatusDeCorrida(corridaSnapshot.val()[key].UIDCliente);
         }
       }else if(
         corridaSnapshot.val()[key].propostaClienteValor.propostaAceita === 'nao' &&
@@ -228,30 +260,33 @@ private conversaChat = [];
 
     // This code is necessary for browser
     Environment.setEnv({
-      'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyB1rryHAFIWcdcsCqxxiu7X1INYI9nXexQ',
-      'API_KEY_FOR_BROWSER_DEBUG': 'AIzaSyB1rryHAFIWcdcsCqxxiu7X1INYI9nXexQ'
+      'API_KEY_FOR_BROWSER_RELEASE': 'AIzaSyDpyG6IaUupu9UYaa67YgyMUGOOMFMKJSs',
+      'API_KEY_FOR_BROWSER_DEBUG': 'AIzaSyDpyG6IaUupu9UYaa67YgyMUGOOMFMKJSs'
     });
-
-    let mapOptions: GoogleMapOptions = {
-      controls:{
-        zoom:false
-      }
-    };
-    this.map = GoogleMaps.create(this.mapaElement,mapOptions);
+    if(!this.jafoiMapeado){
+      let mapOptions: GoogleMapOptions = {
+        controls:{
+          zoom:false
+        }
+      };
+      this.map = await GoogleMaps.create(this.mapaElement,mapOptions);
+      this.jafoiMapeado = true;
+    }
 
     try{
       let watch = await this.geolocation.getCurrentPosition({enableHighAccuracy :  true });
-    let localizacaoAtual ={lat:watch.coords.latitude,lng:watch.coords.longitude};
-      await this.map.one(GoogleMapsEvent.MAP_READY);
-      this.addOriginMaker(localizacaoAtual);
-      this.adicionarMakerNoMapa(
+      let localizacaoAtual ={lat:watch.coords.latitude,lng:watch.coords.longitude};
+      //await this.map.one(GoogleMapsEvent.MAP_READY);
+      this.loading.dismiss();
+      await this.addOriginMaker(localizacaoAtual);
+      await this.adicionarMakerNoMapa(
         {makerNome:'Usuario',cor:'rgb(0,0,0)',localizacao:localizacoes[0].usuario},
         {makerNome:'Destino',cor:'rgb(30,144,255)',localizacao:localizacoes[0].destino});
-      this.calcRotaMotoristaClienteDestino(
+      await this.calcRotaMotoristaClienteDestino(
         {quem:'Motorista',localizacao:localizacaoAtual},
         {quem:'Usuario',localizacao:localizacoes[0].usuario},
         {quem:'Destino',localizacao:localizacoes[0].destino});
-      this.aconpanhaAproximacaoDoUsuarioComMotorista(uidCliente);
+      await this.aconpanhaAproximacaoDoUsuarioComMotorista(uidCliente,true);
     
       }catch(err){
       this.presentAlertSystem('Error',err.code,err.message);
@@ -281,9 +316,8 @@ private conversaChat = [];
           animation: GoogleMapsAnimation.DROP,
           position:minhaLocalizacao
         });
-
       }catch(err){
-        this.presentAlertSystem('Error',err.code,err.message);
+        this.presentAlertSystem('Error','erro não','carregou está merdacaralho!');
       }finally{
         this.loading.dismiss();
       }
@@ -330,37 +364,49 @@ private conversaChat = [];
                   color:'rgb(255,0,0)',
                   width:3
                 })
-            
+                this.map.moveCamera({target:pointsDestino});
+                this.map.panBy(0,100);
             })
         
    } 
 
-   async aconpanhaAproximacaoDoUsuarioComMotorista(uidCliente){
-      let verificaLocal  = setInterval(async ()=>{
+   async aconpanhaAproximacaoDoUsuarioComMotorista(uidCliente,ativarDesativar){ 
+    if(ativarDesativar){
+      this.setIntervalProximidadeMotoristaUsuario  = setInterval(async ()=>{
+        console.log('aconpanhando user')
         let localUsuario = await this.realTime.pegaLocalCliente(uidCliente);
         let distancia = await this.calculaDistEntreDoisPontos(localUsuario);
         if(distancia < 100){
-          this.aconpanhaAproximacaoDoDestinoFinal(uidCliente);
-          pararContagem();
+          this.aconpanhaAproximacaoDoDestinoFinal(uidCliente,true);
+          this.cadastro.mudaStatusDaCorrida('iniciada',uidCliente);
+          pararContagem(this.setIntervalProximidadeMotoristaUsuario);
         }
       },1000*30);
-      function pararContagem(){
-        clearInterval(verificaLocal);
+     }else{
+      pararContagem(this.setIntervalProximidadeMotoristaUsuario);
+     }
+      function pararContagem(ref){
+        clearInterval(ref);
       }
     }
 
-    async aconpanhaAproximacaoDoDestinoFinal(uidCliente){
-      let verificaLocal  = setInterval(async ()=>{
-        console.log('aconpanhando destino final');
-        let localDestino = await this.realTime.pegaLocalDestinoFinal(uidCliente);
-        let distancia = await this.calculaDistEntreDoisPontos(localDestino);
-        console.log(distancia);
-        if(distancia < 100){
-          pararContagem();
-        }
-      },1000*10);
-      function pararContagem(){
-        clearInterval(verificaLocal);
+    async aconpanhaAproximacaoDoDestinoFinal(uidCliente,ativarDesativar){
+      if(ativarDesativar){
+        this.setIntervalProximidadeMotoristaDestino  = setInterval(async ()=>{
+          console.log('aconpanhando destino final');
+          let localDestino = await this.realTime.pegaLocalDestinoFinal(uidCliente);
+          let distancia = await this.calculaDistEntreDoisPontos(localDestino);
+          if(distancia < 100){
+            this.notificacaoProximidadeDestinoFinal = true;
+            pararContagem(this.setIntervalProximidadeMotoristaDestino);
+          }
+        },1000*10);
+      }else{
+        pararContagem(this.setIntervalProximidadeMotoristaDestino);
+      }
+     
+      function pararContagem(ref){
+        clearInterval(ref);
       }
     }
 
@@ -418,23 +464,23 @@ private conversaChat = [];
     await alert.present();
   }
 
-  async presentAlertCancelarCorrida(titulo,msg) {
+  async presentAlertCorridaCanceladaPeloUsuario(titulo,msg) {
     const alert = await this.alertController.create({
       header: titulo,
       message: msg,
       buttons: [
         {
-          text: 'Não',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: (blah) => {}
-        }, {
-          text: 'Sim',
-          handler: () => {
-            this.atualizaSaldoEmConta('cancelamento');
+          text: 'ok',
+          handler: async () => {
+            this.painel = 'corridas';
             this.back();
-            this.removeConexao(this.pathDoChat);
-            this.removeConexao(this.pathDaCorrida);
+            this.mapaElement.style.height = "0px";
+            this.corridaIniciadaOn = 'off';
+            this.aconpanhaAproximacaoDoUsuarioComMotorista(null,false);
+            this.aconpanhaAproximacaoDoDestinoFinal(null,false);
+            //this.atualizaSaldoEmConta('cancelamento');
+            //this.removeConexao(this.pathDoChat);
+            //this.removeConexao(this.pathDaCorrida);
           }
         }
       ]
@@ -504,6 +550,22 @@ public atualizaSaldoEmConta(acao):void{
     });
 }
 
+public mostrarMenuInfoCorrida(){
+  this.menuInfoCorrida = this.menuInfoCorrida === false ? true:false;
+  let menu = document.querySelector('#menuInfoCorrida');
+  let secao = document.querySelector('#secaoMenu');
+  if(this.menuInfoCorrida){
+    menu.className = "menuRigthInfoCorridaOn";
+    secao.className = "secaoOn";
+  }else if(this.menuInfoCorrida === false){
+    menu.className = "menuRigthInfoCorridaOff";
+    secao.className = "secaoOff";
+  }
+}
+
+public finalizarCorrida():void{
+  this.cadastro.finalizaCorrida(this.dadosCorridaAceita.UIDCliente)
+}
 
 
 }

@@ -5,6 +5,7 @@ import {Router} from '@angular/router'
 import {Cadastros} from '../../shared/services/cadastros.service';
 import {ValidacoesForm} from '../../shared/services/validacoesform.service';
 import {authService} from '../../shared/services/auth.service';
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 
 @Component({
   selector: 'app-cadastro',
@@ -37,7 +38,8 @@ export class CadastroComponent implements OnInit {
     public validacoes:ValidacoesForm,
     public alertController: AlertController,
     public rota:Router,
-    public auth:authService
+    public auth:authService,
+    private camera: Camera
     ) { }
 
   ngOnInit() {}
@@ -168,6 +170,46 @@ export class CadastroComponent implements OnInit {
     this.imgVeiculoMotor.blob = await this.converteImagemParaBlob(this.imgVeiculo.nativeElement.files[0]);
     this.imgVeiculoMotor.base64 = await this.converteImagemParaBase64(this.imgVeiculo.nativeElement.files[0]);
   }
+
+  async abreGaleria(acao){
+
+    const options: CameraOptions = {
+      quality: 100,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
+      correctOrientation:true
+    }
+    
+    this.camera.getPicture(options)
+     .then((imageData) => {
+        let base64Image = 'data:image/jpeg;base64,' + imageData;
+        if(acao === 'imagemPerfil'){
+          this.imgPerfilMotor.base64 = base64Image;
+          this.imgPerfilMotor.blob = this.b64toBlob(base64Image);
+        }else if(acao === 'imagemCNH'){
+          this.imgCNHVeliculo.base64 = base64Image;
+          this.imgCNHVeliculo.blob = this.b64toBlob(base64Image);
+        }else if(acao === 'imagemVeiclo'){
+          this.imgVeiculoMotor.base64 = base64Image;
+          this.imgVeiculoMotor.blob = this.b64toBlob(base64Image);
+        }
+
+       }, (err) => {
+        alert('erro');
+       });
+  }
+
+  public b64toBlob(dataURI) {
+    var byteString = atob(dataURI.split(',')[1]);
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: 'image/jpeg' });
+}
 
 
  

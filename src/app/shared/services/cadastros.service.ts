@@ -171,8 +171,32 @@ export class Cadastros{
             }
         })
         .catch( err => {return err})
-
-        
     }
+
+    public alteraEstadoDeVistoCorridaCancelada(UIDCliente):Promise<any>{
+        return new Promise<any>((resolve,reject)=>{
+            firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/cancelamentoVisto`)
+            .set(true)
+            .then(()=>{resolve('ok')})
+            .catch((err)=>{reject(err)})
+        });
+    }
+
+    public mudaStatusDaCorrida(valor,UIDCliente):Promise<any>{
+        return new Promise<any>((resolve,reject)=>{
+            firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/statusDeCorrida`)
+            .set(valor)
+            .then(()=>{resolve('ok')})
+            .catch((err)=>{reject(err)})
+        });
+    }
+
+    async finalizaCorrida(UIDCliente){
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/statusDeCorrida`).set("finalizada");
+    }
+    async finalizaStatusDeCorrida(UIDCliente){
+        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/corridaAntiga`).set(true);
+    }
+
 
 }

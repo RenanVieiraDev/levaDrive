@@ -39,16 +39,15 @@
                 <ion-grid style="width: 100%;">
                     <ion-row>
                         <ion-col size="2">
-                            <img src="../../../assets/icon/camera.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('perfil')">
+                            <img src="../../../assets/icon/camera.png" style="width: 40px;height: 40px;">
                          </ion-col>
                          <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('perfil')">
                              <div style="text-align: center;">
-                                 <img [src]="imgPerfilMotor.base64" *ngIf="imgPerfilMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
-                                 <div style="width: 100%;text-align: left;" *ngIf="imgPerfilMotor.base64 === null">
-                                     imagem de perfil...
+                                <div class="inputFile" style="width: 100%;text-align: left;">
+                                    <img (click)="abreGaleria('imagemPerfil')" class="imagemSub" src="{{imgPerfilMotor.base64}}" *ngIf="imgPerfilMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                                    <span (click)="abreGaleria('imagemPerfil')" *ngIf="imgPerfilMotor.base64 === null">Carregar imagem...</span>
                                  </div>
                              </div>
-                             <input type="file" style="display: none;" #imgPerf accept=".jpg,.png,.jpeg" (change)="eviarImgPerf()">       
                          </ion-col>
                     </ion-row>
                 </ion-grid> 
@@ -168,16 +167,15 @@
             <ion-grid style="width: 100%;">
                 <ion-row>
                     <ion-col size="2">
-                        <img src="../../../assets/icon/icoCNH.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('CNH')">
+                        <img src="../../../assets/icon/icoCNH.png" style="width: 40px;height: 40px;">
                      </ion-col>
-                     <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('CNH')">
+                     <ion-col style="text-align: left;padding-top:5%;">
                          <div style="text-align: center;">
-                             <img [src]="imgCNHVeliculo.base64" *ngIf="imgCNHVeliculo.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
-                             <div style="width: 100%;text-align: left;" *ngIf="imgCNHVeliculo.base64 === null">
-                                 Imagem CNH...
+                            <div class="inputFile" style="width: 100%;text-align: left;">
+                                <img (click)="abreGaleria('imagemCNH')" class="imagemSub" src="{{imgCNHVeliculo.base64}}" *ngIf="imgCNHVeliculo.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                                <span (click)="abreGaleria('imagemCNH')" *ngIf="imgCNHVeliculo.base64 === null">Carregar imagem...</span>
                              </div>
                          </div>
-                         <input type="file" style="display: none;" #imgCnh accept=".jpg,.png,.jpeg" (change)="eviarImgCnh()">       
                      </ion-col>
                 </ion-row>
             </ion-grid> 
@@ -187,16 +185,15 @@
         <ion-grid style="width: 100%;">
             <ion-row>
                 <ion-col size="2">
-                    <img src="../../../assets/icon/veiculoImagem.png" style="width: 40px;height: 40px;" (click)="clickUploadImagem('veiculo')">
+                    <img src="../../../assets/icon/veiculoImagem.png" style="width: 40px;height: 40px;">
                  </ion-col>
-                 <ion-col style="text-align: left;padding-top:5%;" (click)="clickUploadImagem('veiculo')">
+                 <ion-col style="text-align: left;padding-top:5%;">
                      <div style="text-align: center;">
-                         <img [src]="imgVeiculoMotor.base64" *ngIf="imgVeiculoMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
-                         <div style="width: 100%;text-align: left;" *ngIf="imgVeiculoMotor.base64 === null">
-                             Imagem do veiculo...
+                        <div class="inputFile" style="width: 100%;text-align: left;">
+                            <img (click)="abreGaleria('imagemVeiclo')" class="imagemSub" src="{{imgVeiculoMotor.base64}}" *ngIf="imgVeiculoMotor.base64 != null" style="width: 100px;height: 100px;border-radius: 15px;">
+                            <span (click)="abreGaleria('imagemVeiclo')" *ngIf="imgVeiculoMotor.base64 === null">Carregar imagem...</span>
                          </div>
                      </div>
-                     <input type="file" style="display: none;" #imgVeiculo accept=".jpg,.png,.jpeg" (change)="eviarImgVeiculo()">       
                  </ion-col>
             </ion-row>
         </ion-grid> 

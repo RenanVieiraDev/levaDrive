@@ -25,14 +25,14 @@ export class AppComponent {
       this.splashScreen.hide();
     });
     var firebaseConfig = {
-      apiKey: "AIzaSyBWP-NPd880bPAzM8A3imy4fsX8th4q9Lo",
-      authDomain: "leva-97f0f.firebaseapp.com",
-      databaseURL: "https://leva-97f0f.firebaseio.com",
-      projectId: "leva-97f0f",
-      storageBucket: "leva-97f0f.appspot.com",
-      messagingSenderId: "527972701100",
-      appId: "1:527972701100:web:0af5b22a261f102daaa009",
-      measurementId: "G-CP135H285Z"
+      apiKey: "AIzaSyAKuvd8HlT9Kc7aJSPHdf4LpeiamLLxDYQ",
+      authDomain: "levataxi.firebaseapp.com",
+      databaseURL: "https://levataxi.firebaseio.com",
+      projectId: "levataxi",
+      storageBucket: "levataxi.appspot.com",
+      messagingSenderId: "434574242052",
+      appId: "1:434574242052:web:f7ccdd16e77450386ba051",
+      measurementId: "G-PP17D12FK0"
     };
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();

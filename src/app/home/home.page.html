@@ -1,105 +1,158 @@
 <ion-content>
-  <div #map style="height: 100%;">
-    <div class="telaInicial" *ngIf="painel != 'mapa'">
-
-      <div style="width: 100%;">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="3">
-             <small style="color: white;font-family: sans-serif;">Renan</small>
-            </ion-col>
-            <ion-col>
-              <div class="iconCorridas {{painel === 'dashboard'?'peinelSelected':''}}">
-                <img src="../../assets/icon/dashBoard.png"  (click)="trocaPainel('dashboard')" style="width: 50px;height: 50px;">
-              </div>
-            </ion-col>
-            <ion-col>
-              <div class="iconCorridas {{painel === 'corridas'?'peinelSelected':''}}">
-                <img src="../../assets/icon/volante.png" (click)="trocaPainel('corridas')" style="width: 50px;height: 50px;">
-              </div>
-            </ion-col>
-            <ion-col>
-              <!--<img src="../../assets/icon/chat1.png" style="width: 50px;height: 50px;" (click)="abrirFecharChat()">-->
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-
-      <div class="telaNotifications" *ngIf="painel === 'corridas'">
-        <ul style="margin: 0px;padding: 0px;list-style: none;width: 100%;">
-      
-          <li style="margin:10px 0px;" *ngFor="let corrida of corridasNotificacoes">
-            <div style="background-color: aliceblue;padding: 5px;border-radius: 5px;box-shadow: 3px 3px 3px rgba(0,0,0,.3);">
-              <table>
-                <tr style="width: 100%;padding-left: 5px;">
-                  <td>
-                    <ion-avatar>
-                      <img src="{{corrida.dadosCorrida.urlImagemPerfilUsuario}}">
-                    </ion-avatar>
-                  </td>
-                  <td style="width: 100%;padding-left: 5px;border-bottom: 1px solid rgba(0,0,0,.2);">
-                    <table>
-                      <tr>
-                        <td>Tempo:&nbsp;<b>{{corrida.dadosCorrida.duracao}}</b>&nbsp; |&nbsp; <b>{{corrida.dadosCorrida.distancia}}</b></td>
-                      </tr>
-                      <tr><td>De:<b>{{ (corrida.dadosCorrida.nomeLocalCliente).substring(0, 26)}}...</b></td></tr>
-                      <tr><td>Para:<b>{{ (corrida.dadosCorrida.destinoNome).substring(0, 26)}}...</b></td></tr>
-                      <tr><td *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor == 0">Valor:<b>R$&nbsp;{{corrida.dadosCorrida.propostaClienteValor.valor}}</b></td></tr>
-                      <tr><td *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor > 0" style="text-decoration: line-through;">Valor:<b>R$&nbsp;{{corrida.dadosCorrida.propostaClienteValor.valor}}</b></td></tr>
-                      <tr *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor > 0"><td>Contra Proposta Valor:<b>R$&nbsp;{{corrida.dadosCorrida.contraPropostaMotorista.valor}}</b></td></tr>
-                    </table>
-                  </td>
-
-                </tr>
-              </table>
-              <table>
-                <tr>
-                  <td><ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" color="success" size="small" (click)="aceitaPedido(corrida.dadosCorrida.UIDCliente,corrida,{usuario:corrida.dadosCorrida.localClienteCords,destino:corrida.dadosCorrida.destinoCords})">Aceita</ion-button></td>
-                  <td><ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" color="danger" size="small" (click)="negarPedido(corrida.dadosCorrida.UIDCliente,corrida.dadosCorrida.pedidoNegadoPor)">Recusar</ion-button></td>
-                  <td>
-                    <ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" size="small" (click)="tougleIntpProprosta(corrida.idContra)">Proposta</ion-button>
-                  </td>
-                </tr>
-              </table>
-                <form [id]="corrida.idContra" class="off" (submit)="realizarContraProposta($event,corrida.dadosCorrida.UIDCliente,corrida.idContra)">
-                  <table>
-                    <tr>
-                      <td>R$<input type="number" name="valorContraProposta" id="{{'input'+corrida.idContra}}"></td>
-                      <td><ion-button color="warning" size="small" type="submit"> >> </ion-button></td>
-                    </tr>
-                  </table>
-                </form>
-            </div>
-            <ion-progress-bar color="success" value="0.99"></ion-progress-bar>
-          </li>
-        </ul>
-        
-      </div>
-
-     
-          
-      <div style="width: 100%;" *ngIf="painel === 'corridas'">
-        <ul style="margin: 0px;padding: 0px;list-style: none;width: 100%;">
-          <li style="text-align: center;">
-            <img src="../../assets/loadings/wifi.gif" style="width: 40%;">
-          </li>
-          <li style="text-align: center;">
-            <img src="../../assets/icon/carroWifi.png" style="width: 80%;"> 
-          </li>
-        </ul>   
-      </div>
-
-      <div class="dashboardContainer" *ngIf="painel === 'dashboard'">
-        Aki É A DASHBOARD
-      </div>
   
+  <div class="telaInicial" *ngIf="painel != 'mapa'">
+
+    <div style="width: 100%;">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4">
+            <div class="circleOnOff {{motoristaOnOff===true?'onCircle':'offCircle'}}">
+              <small style="color: white;font-family: sans-serif;" *ngIf="motoristaOnOff">On</small>
+              <small style="color: white;font-family: sans-serif;" *ngIf="!motoristaOnOff">Off</small>
+              <img src="../../assets/loadings/Dual Ball-1s-200px (1).gif" *ngIf="!motoristaOnOff" style="width: 30px;height: 20px;">
+            </div>
+          </ion-col>
+          <ion-col>
+            <div class="iconCorridas {{painel === 'dashboard'?'peinelSelected':''}}">
+              <img src="../../assets/icon/dashBoard.png"  (click)="trocaPainel('dashboard')" style="width: 50px;height: 50px;">
+            </div>
+          </ion-col>
+          <ion-col>
+            <div class="iconCorridas {{painel === 'corridas'?'peinelSelected':''}}">
+              <img src="../../assets/icon/volante.png" (click)="trocaPainel('corridas')" style="width: 50px;height: 50px;">
+            </div>
+          </ion-col>
+          <ion-col>
+            <!--<img src="../../assets/icon/chat1.png" style="width: 50px;height: 50px;" (click)="abrirFecharChat()">-->
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
 
+    <div class="telaNotifications" *ngIf="painel === 'corridas'">
+      <ul style="margin: 0px;padding: 0px;list-style: none;width: 100%;">
+    
+        <li style="margin:10px 0px;" *ngFor="let corrida of corridasNotificacoes">
+          <div style="background-color: aliceblue;padding: 5px;border-radius: 5px;box-shadow: 3px 3px 3px rgba(0,0,0,.3);">
+            <table>
+              <tr style="width: 100%;padding-left: 5px;">
+                <td>
+                  <ion-avatar>
+                    <img src="{{corrida.dadosCorrida.urlImagemPerfilUsuario}}">
+                  </ion-avatar>
+                </td>
+                <td style="width: 100%;padding-left: 5px;border-bottom: 1px solid rgba(0,0,0,.2);">
+                  <table>
+                    <tr>
+                      <td>Tempo:&nbsp;<b>{{corrida.dadosCorrida.duracao}}</b>&nbsp; |&nbsp; <b>{{corrida.dadosCorrida.distancia}}</b></td>
+                    </tr>
+                    <tr><td>De:<b>{{ (corrida.dadosCorrida.nomeLocalCliente).substring(0, 26)}}...</b></td></tr>
+                    <tr><td>Para:<b>{{ (corrida.dadosCorrida.destinoNome).substring(0, 26)}}...</b></td></tr>
+                    <tr><td *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor == 0">Valor:<b>R$&nbsp;{{corrida.dadosCorrida.propostaClienteValor.valor}}</b></td></tr>
+                    <tr><td *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor > 0" style="text-decoration: line-through;">Valor:<b>R$&nbsp;{{corrida.dadosCorrida.propostaClienteValor.valor}}</b></td></tr>
+                    <tr *ngIf="corrida.dadosCorrida.contraPropostaMotorista.valor > 0"><td>Contra Proposta Valor:<b>R$&nbsp;{{corrida.dadosCorrida.contraPropostaMotorista.valor}}</b></td></tr>
+                  </table>
+                </td>
+
+              </tr>
+            </table>
+            <table>
+              <tr>
+                <td><ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" color="success" size="small" (click)="aceitaPedido(corrida.dadosCorrida.UIDCliente,corrida,{usuario:corrida.dadosCorrida.localClienteCords,destino:corrida.dadosCorrida.destinoCords})">Aceita</ion-button></td>
+                <td><ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" color="danger" size="small" (click)="negarPedido(corrida.dadosCorrida.UIDCliente,corrida.dadosCorrida.pedidoNegadoPor)">Recusar</ion-button></td>
+                <td>
+                  <ion-button disabled="{{corrida.dadosCorrida.contraPropostaMotorista.valor > 0? true:false}}" size="small" (click)="tougleIntpProprosta(corrida.idContra)">Proposta</ion-button>
+                </td>
+              </tr>
+            </table>
+              <form [id]="corrida.idContra" class="off" (submit)="realizarContraProposta($event,corrida.dadosCorrida.UIDCliente,corrida.idContra)">
+                <table>
+                  <tr>
+                    <td>R$<input type="number" name="valorContraProposta" id="{{'input'+corrida.idContra}}"></td>
+                    <td><ion-button color="warning" size="small" type="submit"> >> </ion-button></td>
+                  </tr>
+                </table>
+              </form>
+          </div>
+          <ion-progress-bar color="success" value="0.99"></ion-progress-bar>
+        </li>
+      </ul>
+      
+    </div>
+
+    <div style="width: 100%;" *ngIf="painel === 'corridas'">
+      <ul style="margin: 0px;padding: 0px;list-style: none;width: 100%;">
+        <li style="text-align: center;">
+          <img src="../../assets/loadings/wifi.gif" style="width: 40%;">
+        </li>
+        <li style="text-align: center;">
+          <img src="../../assets/icon/carroWifi.png" style="width: 80%;"> 
+        </li>
+      </ul>   
+    </div>
+
+    <div class="dashboardContainer" *ngIf="painel === 'dashboard'">
+      Aki É A DASHBOARD
+    </div>
+
+  </div>
+
+  <div #map style="height: 0px;">
+    <div class="menuRigthInfoCorridaOff" id="menuInfoCorrida" *ngIf="dadosCorridaAceita">
+      <img src="../../assets/icon/sinoNotificacao.gif" style="width: 25px;height: 25px;" *ngIf="notificacaoProximidadeDestinoFinal">
+      <img src="../../assets/icon/infoCorridaIcon.png" style="width: 30px;height: 30px;" (click)="mostrarMenuInfoCorrida()">
+      <section style="margin-top: 10px;" id="secaoMenu" class="secaoOff">
+        <h3>Informações Da Corrida</h3>
+        <div style="margin-bottom: 10px; text-align: left; margin-top: 15px;border-bottom: 1px solid rgba(225,225,225,.7);">
+          <b>Destino:</b>
+          <p>
+            {{dadosCorridaAceita.destinoNome}}
+          </p>
+        </div>
+        <div style="border-bottom: 1px solid rgba(225,225,225,.7);padding-top: 5px;text-align: left;">
+          <ul style="list-style: none;margin: 0px;padding: 0px;">
+            <li>Tempo: {{dadosCorridaAceita.duracao}}</li>
+            <li>Distancia: {{dadosCorridaAceita.distancia}}</li>
+          </ul>
+        </div>
+        <div style="border-bottom:1px solid rgba(225,225,225,.7); margin-bottom: 15px;">
+          <h4>Valor</h4>
+          <h3>R$ <b style="color: mediumspringgreen;">10,00</b></h3>
+        </div>
+
+          <div style="border: 1px solid green;" *ngIf="notificacaoProximidadeDestinoFinal">
+            <div style="width: 100%;text-align: left;">
+              <img src="../../assets/icon/bandeirinhaChegadaIcon.png" style="width: 35px;height: 35px;">
+            </div>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="12">
+                  <b>Detectamos a aproximação do destino final.</b>
+                  <p>
+                    <small style="color: blanchedalmond;">
+                      Quando o passageiro desenbarcar finalize 
+                      a corrida para entrar na fila de novas
+                      corridas.
+                    </small>
+                  </p>
+                </ion-col>
+                <ion-col style="text-align: center;">
+                  <ion-button color="warning" expand="block" (click)="finalizarCorrida()" ><span style="color: black;">Finalizar Corrida</span></ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+         
+
+      </section>
+    </div>
+
+    <!--View botton para abrir o chat com o usuario-->
     <div class="navegacaoMotoristaContainer" *ngIf="dadosCorridaAceita">
       <ion-grid>
         <ion-row>
           <ion-col size="4" style="text-align: center;">
-            <img *ngIf="dadosCorridaAceita" src="{{dadosCorridaAceita.urlImagemPerfilUsuario}}" style="width: 50%;">
+            <img class="imgHeadChat" *ngIf="dadosCorridaAceita" src="{{dadosCorridaAceita.urlImagemPerfilUsuario}}" style="width: 80px;border-radius: 100%;height: 80px;box-shadow: 3px 3px 3px rgba(0,0,0,.3);">
           </ion-col>
           <ion-col size="8">
             <h3 style="margin:0px" *ngIf="dadosCorridaAceita">{{dadosCorridaAceita.nomeCliente}}</h3>
@@ -108,51 +161,9 @@
         </ion-row>
       </ion-grid>
     </div>
-
-    <div class="navegacaoMotoristaContainer" *ngIf="startCorridaIniciado">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="4" style="text-align: center;">
-            <ion-button color="success">SIM</ion-button>
-          </ion-col>
-          <ion-col size="8">
-            <h3 style="margin:0px">O cliente já está dentro do veiculo?</h3>
-            <span>Podemos iniciar a corrida?</span>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
+    <!--Fim view botton para abrir o chat com o usuario-->
     
-   <!--<div class="listaContatosChat off" >
-      <header>
-        <ion-grid>
-          <ion-row>
-            <ion-col></ion-col>
-            <ion-col style="text-align: center;"></ion-col>
-            <ion-col style="text-align: right;" (click)="abrirFecharChat()">fechar</ion-col>
-          </ion-row>
-        </ion-grid>
-      </header>
-
-      <ul style="list-style: none;margin: 0px;padding: 0px;">
-        <li class="contato">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="3">
-                  <img style="width: 80%;border-radius: 50%;margin-top: 5%;" src="../../assets/us.jpg">
-              </ion-col>
-              <ion-col>
-                <div style="border-bottom:1px solid rgba(0,0,0,.1);">
-                  <h4>Finn</h4>
-                  <small>Listen, I've had a pretty messed up day...</small>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </li>
-      </ul>
-    </div>-->
-    
+    <!--Chat-->
     <div id="chatId" class="chatFiltro off">
       <div class="ion-margin-horizontal containerChat">
           <div class="topChat">
@@ -199,6 +210,7 @@
 
       </div>
     </div>
+    <!--fim Chat-->
 
 
   </div>

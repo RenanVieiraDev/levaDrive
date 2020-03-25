@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="br.com.sllim.leva" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Leva</name>
-    <description>App de taxí online.</description>
+<widget id="br.com.sllim.levaDrive" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Leva Driving</name>
+    <description>App para motoristas Leva</description>
     <author email="renanvieira.andrade2@gmail.com" href="http://sllim.com.br/">Sllim soluções</author>
     <content src="index.html" />
     <access origin="*" />
@@ -99,6 +99,6 @@
     <plugin name="cordova-plugin-splashscreen" spec="5.0.2" />
     <plugin name="cordova-plugin-ionic-webview" spec="^4.0.0" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.0.5" />
-    <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="AIzaSyB1rryHAFIWcdcsCqxxiu7X1INYI9nXexQ" />
-    <preference name="GOOGLE_MAPS_IOS_API_KEY" value="AIzaSyB1rryHAFIWcdcsCqxxiu7X1INYI9nXexQ" />
+    <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="AIzaSyDpyG6IaUupu9UYaa67YgyMUGOOMFMKJSs" />
+    <preference name="GOOGLE_MAPS_IOS_API_KEY" value="AIzaSyDpyG6IaUupu9UYaa67YgyMUGOOMFMKJSs" />
 </widget>

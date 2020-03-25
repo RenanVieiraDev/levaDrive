@@ -12,6 +12,7 @@ import {GoogleMaps} from '@ionic-native/google-maps'
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import {ReactiveFormsModule} from '@angular/forms';
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 //components angular
 import {CadastroComponent} from './login/cadastro/cadastro.component';
 //services
@@ -19,6 +20,8 @@ import {authService} from './shared/services/auth.service';
 import {Cadastros} from './shared/services/cadastros.service';
 import {ValidacoesForm} from './shared/services/validacoesform.service';
 import {GetRealTimeDados} from './shared/services/getSetRealTimeDados.service'
+import { Insomnia } from '@ionic-native/insomnia/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @NgModule({
   declarations: [AppComponent,CadastroComponent],
@@ -34,6 +37,9 @@ import {GetRealTimeDados} from './shared/services/getSetRealTimeDados.service'
     Cadastros,
     ValidacoesForm,
     GetRealTimeDados,
+    Camera,
+    Insomnia,
+    BackgroundMode,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
