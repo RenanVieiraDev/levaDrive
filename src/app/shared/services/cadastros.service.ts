@@ -8,6 +8,10 @@ export class Cadastros{
         dadosMotorista.verificacao = false;
         dadosMotorista.saldo = 0;
         dadosMotorista.placa = dadosMotorista.placa.toUpperCase();
+        dadosMotorista.saldoRealRecebido = 0;
+        dadosMotorista.saldoPagamentoParaSistema = 0;
+        dadosMotorista.saldoTotalEntrada = 0;
+        dadosMotorista.valoresRecebidos = [{deQuem:'',valor:0,data:new Date()}];
         return new Promise((resolve,reject)=>{
             firebase.auth().createUserWithEmailAndPassword(dadosMotorista.email,dadosMotorista.senha)
             .then((ok)=>{
@@ -191,11 +195,35 @@ export class Cadastros{
         });
     }
 
-    async finalizaCorrida(UIDCliente){
-        await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/statusDeCorrida`).set("finalizada");
+    public finalizaCorrida(UIDCliente,dadosCorrida):Promise<any>{
+         return new Promise<any>((resolve,reject)=>{
+            this.pegaSaldoReporParaSistema()
+            .then(async (valor)=>{
+                try{
+                    await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/valorReporParaSistema`).set(parseFloat(valor)+parseFloat(dadosCorrida.saldoDevedorCliente))
+                    await firebase.database().ref(`clientes/${UIDCliente}/saldos/saldoDevedor`).set(0);
+                    await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/statusDeCorrida`).set("finalizada");
+                    await resolve('ok');
+                }catch{
+                    reject('erro');
+                }
+            })
+        }); 
     }
+    
     async finalizaStatusDeCorrida(UIDCliente){
         await firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/corridas/${UIDCliente}/corridaAntiga`).set(true);
+    }
+
+    public pegaSaldoReporParaSistema():Promise<any>{
+        return new Promise<any>((resolve,reject)=>{
+            firebase.database().ref(`motoristas/${localStorage.getItem('UID')}/valorReporParaSistema`)
+            .once('value')
+            .then((res)=>{
+                resolve(res.val())
+            })
+            .catch((err)=>{reject(err)})
+        });
     }
 
 

@@ -10,6 +10,7 @@ import { AlertController } from '@ionic/angular';
 declare var google:any;
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import {CrudServise} from '../shared/services/Crud.Service';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +28,6 @@ private googleDirectionServices = new google.maps.DirectionsService();
 private pathDaCorrida:any;
 private pathDoChat:any;
 private jafoiMapeado= false;
-
 //sistema
 private motoristaOnOff:boolean = false;
 private painel = 'corridas'; //existe três painel (corridas),(dashboard) e (mapa);
@@ -35,6 +35,7 @@ private setIntervalProximidadeMotoristaUsuario:any;
 private setIntervalProximidadeMotoristaDestino:any;
 private menuInfoCorrida = false;
 private notificacaoProximidadeDestinoFinal = false;
+private loadindFinalizarCorrida = false;
 //motorista
 private corridasNotificacoes=[];
 private corridasFinalizadas=[];
@@ -57,7 +58,8 @@ private conversaChat = [];
     public realTime:GetRealTimeDados,
     public alertController: AlertController,
     private insomnia: Insomnia,
-    private background: BackgroundMode
+    private background: BackgroundMode,
+    private crudDB:CrudServise
     ) {}
 
   async ngOnInit(){
@@ -78,7 +80,6 @@ private conversaChat = [];
   }
 
   public inicializacaoDoModoOnline(...params):void{
-    //if(this.aconpanhandoOChat === 'off')this.aconpanhaChat(`motoristas/${localStorage.getItem('UID')}/chat/`);
     if(this.aconpanhandoCorridas === 'off')this.aconpanhaCorridas(`motoristas/${localStorage.getItem('UID')}/corridas/`);
     this.cadastro.alteraValorOnline(localStorage.getItem('UID'),params[0].online).then(()=>{this.motoristaOnOff = true;}).catch(()=>{this.motoristaOnOff = true;})
     .then(()=>{this.motoristaOnOff=true}).catch(()=>{this.motoristaOnOff=false});
@@ -152,9 +153,11 @@ private conversaChat = [];
           this.presentAlertCorridaCanceladaPeloUsuario('Atenção!!!','A corrida foi cancelada pelo o usuario!');
         }
         if(corridaSnapshot.val()[key].statusDeCorrida === 'finalizada' && corridaSnapshot.val()[key].corridaAntiga == false){
-          console.log('retirar os 25% do valor do sistema');
-          console.log('acrescentar o valor dos 25% da corrida no debitoMensal do motorista');
-          console.log('adicionar o restante do valor da corrida no cridite do motorista');  
+          this.insereValoresRecebidosNoDb({
+            deQuem:corridaSnapshot.val()[key].UIDCliente,
+            valor:corridaSnapshot.val()[key].contraPropostaMotorista.valor,
+            dataPagamente:this.retornaHoraDataFormatadaAtual()}
+          );
             this.painel = 'corridas';
             this.back();
             this.mapaElement.style.height = "0px";
@@ -188,13 +191,17 @@ private conversaChat = [];
         }
         if(corridaSnapshot.val()[key].statusDeCorrida === 'cancelada' && corridaSnapshot.val()[key].cancelamentoVisto == false){
           this.cadastro.alteraEstadoDeVistoCorridaCancelada(corridaSnapshot.val()[key].UIDCliente);
-          console.log('pegue o valor da proposta docliente e divida por 2 e adiciona ao saldo do motorista');
+          console.log('pegue o valor da proposta do cliente e divida por 2 e adiciona ao saldo do motorista');
           this.presentAlertCorridaCanceladaPeloUsuario('Atenção!!!','A corrida foi cancelada pelo o usuario!');
         }
         if(corridaSnapshot.val()[key].statusDeCorrida === 'finalizada' && corridaSnapshot.val()[key].corridaAntiga == false){
-          console.log('retirar os 25% do valor do sistema');
-          console.log('acrescentar o valor dos 25% da corrida no debitoMensal do motorista');
-          console.log('adicionar o restante do valor da corrida no cridite do motorista');  
+          this.insereValoresRecebidosNoDb({
+             deQuem:corridaSnapshot.val()[key].UIDCliente,
+             valor:corridaSnapshot.val()[key].propostaClienteValor.valor,
+             dataPagamente:this.retornaHoraDataFormatadaAtual()
+            }
+          );
+
             this.painel = 'corridas';
             this.back();
             this.mapaElement.style.height = "0px";
@@ -376,6 +383,7 @@ private conversaChat = [];
         console.log('aconpanhando user')
         let localUsuario = await this.realTime.pegaLocalCliente(uidCliente);
         let distancia = await this.calculaDistEntreDoisPontos(localUsuario);
+        distancia = 99;
         if(distancia < 100){
           this.aconpanhaAproximacaoDoDestinoFinal(uidCliente,true);
           this.cadastro.mudaStatusDaCorrida('iniciada',uidCliente);
@@ -396,6 +404,7 @@ private conversaChat = [];
           console.log('aconpanhando destino final');
           let localDestino = await this.realTime.pegaLocalDestinoFinal(uidCliente);
           let distancia = await this.calculaDistEntreDoisPontos(localDestino);
+          distancia = 99;
           if(distancia < 100){
             this.notificacaoProximidadeDestinoFinal = true;
             pararContagem(this.setIntervalProximidadeMotoristaDestino);
@@ -538,16 +547,27 @@ public  removeConexao(pathNode):void{
   firebase.database().ref(pathNode).off();
 }
 
-public atualizaSaldoEmConta(acao):void{
-    this.realTime.pegaSaldoEmConta()
-    .then(saldo=>{
-      if(acao==='cancelamento'){
-        this.cadastro.cadastraSaldoEmConta((saldo - (this.dadosCorridaAceita.valorCorrida/2)).toFixed(2));
-      }
-    })
-    .catch(err=>{
-      this.presentAlertSystem('Erro',err.code,err.message);
-    });
+async insereValoresRecebidosNoDb(pagamentoCliente:object){
+  await this.crudDB.acrescentaValorNoDb(`motoristas/${localStorage.getItem('UID')}/valoresRecebidos`,pagamentoCliente)
+  let listaComValoresRecebidos = await this.crudDB.pegaValorNoDb(`motoristas/${localStorage.getItem('UID')}/valoresRecebidos`);
+  await this.atualizaSaldoEmConta(listaComValoresRecebidos);
+}
+
+async atualizaSaldoEmConta(listaRecebimentos){
+  let dataAtualDoSistema = this.retornaHoraDataFormatadaAtual();
+  let valorTarifaSistema = 0 ,valorRecebidoPeloMotorista = 0;
+  for(let key in listaRecebimentos){
+    if(listaRecebimentos[key].dataPagamente == dataAtualDoSistema){
+      //console.log(listaRecebimentos[key])
+      let tarifa = (listaRecebimentos[key].valor*25)/100;
+      let valorHaReceber = listaRecebimentos[key].valor - tarifa;
+      //valores totais========
+      valorTarifaSistema += tarifa;
+      valorRecebidoPeloMotorista += valorHaReceber;
+    }
+  }
+  await this.crudDB.atualizaValorNoDb(`motoristas/${localStorage.getItem('UID')}/saldoPagamentoParaSistema`,valorTarifaSistema);
+  await this.crudDB.atualizaValorNoDb(`motoristas/${localStorage.getItem('UID')}/saldoRealRecebido`,valorRecebidoPeloMotorista);
 }
 
 public mostrarMenuInfoCorrida(){
@@ -564,8 +584,24 @@ public mostrarMenuInfoCorrida(){
 }
 
 public finalizarCorrida():void{
-  this.cadastro.finalizaCorrida(this.dadosCorridaAceita.UIDCliente)
+  this.loadindFinalizarCorrida = true;
+  this.cadastro.finalizaCorrida(this.dadosCorridaAceita.UIDCliente,this.dadosCorridaAceita)
+  .then((res)=>{
+    this.loadindFinalizarCorrida = false;
+    this.mostrarMenuInfoCorrida();
+    this.notificacaoProximidadeDestinoFinal = false;
+  });
 }
 
+public retornaHoraDataFormatadaAtual():string{ 
+  return `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+}
+
+public calculaValorDividaMaisCorridaOfertaCliente():number{
+  return parseFloat(this.dadosCorridaAceita.propostaClienteValor.valor) + parseFloat(this.dadosCorridaAceita.saldoDevedorCliente);
+}
+public calculaDividaMaisCorridaContraProposta():number{
+  return parseFloat(this.dadosCorridaAceita.contraPropostaMotorista.valor) + parseFloat(this.dadosCorridaAceita.saldoDevedorCliente);
+}
 
 }

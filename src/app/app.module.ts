@@ -22,7 +22,7 @@ import {ValidacoesForm} from './shared/services/validacoesform.service';
 import {GetRealTimeDados} from './shared/services/getSetRealTimeDados.service'
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
-
+import {CrudServise} from './shared/services/Crud.Service'
 @NgModule({
   declarations: [AppComponent,CadastroComponent],
   entryComponents: [],
@@ -40,6 +40,7 @@ import { BackgroundMode } from '@ionic-native/background-mode/ngx';
     Camera,
     Insomnia,
     BackgroundMode,
+    CrudServise,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
